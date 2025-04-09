@@ -23,6 +23,14 @@ export const rpcProvidersByChainId: RpcProvidersByChainId = {
       symbol: "ETH",
     },
   },
+  56: {
+    name: "Binance Smart Chain Mainnet",
+    baseURL: WALLETCONNECT_RPC_BASE_URL + "&chainId=eip155:56",
+    token: {
+      name: "BNB",
+      symbol: "BNB",
+    },
+  },
   5: {
     name: "Ethereum Goerli",
     baseURL: WALLETCONNECT_RPC_BASE_URL + "&chainId=eip155:5",
@@ -132,6 +140,8 @@ const api: AxiosInstance = axios.create({
 
 export const apiGetAccountNonce = async (address: string, chainId: string): Promise<number> => {
   const ethChainId = chainId.split(":")[1];
+  console.log(ethChainId, "ethChainId");
+  console.log(rpcProvidersByChainId, "rpcProvidersByChainId");
   const { baseURL } = rpcProvidersByChainId[Number(ethChainId)];
   const response = await api.post(baseURL, {
     jsonrpc: "2.0",
