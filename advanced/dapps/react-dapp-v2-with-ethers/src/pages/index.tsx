@@ -141,9 +141,7 @@ const Home: NextPage = () => {
     const [address] = await web3Provider.listAccounts();
 
     const tx = await formatTestTransaction("eip155:" + chainId + ":" + address);
-    console.log(tx, "tx");
     const signedTx = await web3Provider.send("eth_signTransaction", [tx]);
-    console.log(signedTx, "signedTx");
     const valid = Transaction.fromSerializedTx(signedTx as any).verifySignature();
 
     return {
@@ -180,7 +178,6 @@ const Home: NextPage = () => {
     const msg = "hello world";
     const hexMsg = encoding.utf8ToHex(msg, true);
     const [address] = await web3Provider.listAccounts();
-    console.log(address, hexMsg, "address, hexMsg");
     const signature = await web3Provider.send("eth_sign", [address, hexMsg]);
     const valid = verifyEip155MessageSignature(msg, signature, address);
     return {
@@ -192,34 +189,28 @@ const Home: NextPage = () => {
   };
 
   const testSignTypedData: () => Promise<IFormattedRpcResponse> = async () => {
-    try {
-      if (!web3Provider) {
-        throw new Error("web3Provider not connected");
-      }
-      const message = JSON.stringify(eip712.example);
-
-      const [address] = await web3Provider.listAccounts();
-
-      // eth_signTypedData params
-      const params = [address, message];
-      console.log(params, "params");
-      // send message
-      const signature = await web3Provider.send("eth_signTypedData", params);
-      console.log(signature, "signature");
-      const hashedTypedData = hashTypedDataMessage(message);
-
-      console.log(hashedTypedData, "hashedTypedData");
-      const valid = await verifySignature(address, signature, hashedTypedData, web3Provider);
-      console.log(valid, "valid");
-      return {
-        method: "eth_signTypedData",
-        address,
-        valid,
-        result: signature,
-      };
-    } catch (error) {
-      console.error("testSignTypedData failed:", error);
+    if (!web3Provider) {
+      throw new Error("web3Provider not connected");
     }
+
+    const message = JSON.stringify(eip712.example);
+
+    const [address] = await web3Provider.listAccounts();
+
+    // eth_signTypedData params
+    const params = [address, message];
+
+    // send message
+    const signature = await web3Provider.send("eth_signTypedData", params);
+
+    const hashedTypedData = hashTypedDataMessage(message);
+    const valid = await verifySignature(address, signature, hashedTypedData, web3Provider);
+    return {
+      method: "eth_signTypedData",
+      address,
+      valid,
+      result: signature,
+    };
   };
 
   const getEthereumActions = (): AccountAction[] => {
@@ -228,7 +219,6 @@ const Home: NextPage = () => {
       try {
         setIsRpcRequestPending(true);
         const result = await rpcRequest();
-        console.log("RPC response:", result);
         setRpcResult(result);
       } catch (error) {
         console.error("RPC request failed:", error);
