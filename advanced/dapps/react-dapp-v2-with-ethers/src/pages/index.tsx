@@ -132,6 +132,27 @@ const Home: NextPage = () => {
     };
   };
 
+  const testSendRawTransaction: () => Promise<IFormattedRpcResponse> = async () => {
+    if (!web3Provider) {
+      throw new Error("web3Provider not connected");
+    }
+
+    // const tx = await formatTestTransaction("eip155:" + chainId + ":" + address);
+    const { chainId } = await web3Provider.getNetwork();
+    const [address] = await web3Provider.listAccounts();
+
+    const tx = await formatTestTransaction("eip155:" + chainId + ":" + address);
+    const signedTx = await web3Provider.send("eth_signTransaction", [tx]);
+    const txHash = await web3Provider.send("eth_sendRawTransaction", [signedTx]);
+
+    return {
+      method: "eth_sendRawTransaction",
+      address,
+      valid: true,
+      result: txHash,
+    };
+  };
+
   const testSignTransaction: () => Promise<IFormattedRpcResponse> = async () => {
     if (!web3Provider) {
       throw new Error("web3Provider not connected");
@@ -230,6 +251,7 @@ const Home: NextPage = () => {
 
     return [
       { method: "eth_sendTransaction", callback: wrapRpcRequest(testSendTransaction) },
+      { method: "eth_sendRawTransaction", callback: wrapRpcRequest(testSendRawTransaction) },
       { method: "eth_signTransaction", callback: wrapRpcRequest(testSignTransaction) },
       { method: "personal_sign", callback: wrapRpcRequest(testSignMessage) },
       { method: "eth_sign (standard)", callback: wrapRpcRequest(testEthSign) },
