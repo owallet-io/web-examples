@@ -35,6 +35,43 @@ import {
 } from "./../components/app";
 import { useWalletConnectClient } from "./../contexts/ClientContext";
 import { RELAYER_SDK_VERSION as version } from "@walletconnect/core";
+import {
+  detect,
+  BrowserInfo,
+  BotInfo,
+  NodeInfo,
+  SearchBotDeviceInfo,
+  ReactNativeInfo,
+} from "detect-browser";
+
+function detectEnv(
+  userAgent?: string,
+): BrowserInfo | BotInfo | NodeInfo | SearchBotDeviceInfo | ReactNativeInfo | null {
+  return detect(userAgent);
+}
+
+function detectOS() {
+  const env = detectEnv();
+  return env && env.os ? env.os : undefined;
+}
+
+export function isAndroid(): boolean {
+  const os = detectOS();
+  return os ? os.toLowerCase().includes("android") : false;
+}
+
+function isIOS(): boolean {
+  const os = detectOS();
+  return os
+    ? os.toLowerCase().includes("ios") ||
+        (os.toLowerCase().includes("mac") && navigator.maxTouchPoints > 1)
+    : false;
+}
+
+export function isMobile(): boolean {
+  const os = detectOS();
+  return os ? isAndroid() || isIOS() : false;
+}
 
 interface IFormattedRpcResponse {
   method: string;
@@ -292,14 +329,16 @@ const Home: NextPage = () => {
 
   const renderContent = () => {
     const chainOptions = isTestnet ? DEFAULT_TEST_CHAINS : DEFAULT_MAIN_CHAINS;
+    console.log(session, "session");
+    console.log(balances, "balances");
     return !accounts.length && !Object.keys(balances).length ? (
       <SLanding center>
         <Banner />
         <h6>
-          <span>{`Using v${version || "2.0.0-beta"}`}</span>
+          <span>{`Using v${version || "2.0.0-beta"} For OWallet`}</span>
         </h6>
         <SButtonContainer>
-          <h6>Select an Ethereum chain:</h6>
+          <h6>Select an EVM chain:</h6>
           <SToggleContainer>
             <p>Testnets Only?</p>
             <Toggle active={isTestnet} onClick={toggleTestnets} />

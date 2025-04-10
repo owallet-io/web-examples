@@ -110,7 +110,7 @@ export function ClientContextProvider({ children }: { children: ReactNode | Reac
       }
 
       _client.on("display_uri", async (uri: string) => {
-        console.log("EVENT", "QR Code Modal open");
+        console.log("EVENT", uri, "QR Code Modal open");
         web3Modal?.openModal({ uri });
       });
 
@@ -155,11 +155,34 @@ export function ClientContextProvider({ children }: { children: ReactNode | Reac
         projectId: DEFAULT_PROJECT_ID,
         logger: DEFAULT_LOGGER,
         relayUrl: DEFAULT_RELAY_URL,
+        metadata: {
+          name: "React Dapp OWallet",
+          description: "A Demo Wallet Connect OWallet built with React Dapp",
+          url: "https://owallet.io",
+          icons: [
+            "https://play-lh.googleusercontent.com/6bFRl07spL_18Qq_ipWbiI_h22UvXYFRArDPd0W8SSfE0XCHlae8KH-XhVw1OopySnc",
+          ],
+        },
       });
 
       const web3Modal = new Web3Modal({
         projectId: DEFAULT_PROJECT_ID,
         walletConnectVersion: 2,
+        walletImages: {
+          owallet:
+            "https://play-lh.googleusercontent.com/6bFRl07spL_18Qq_ipWbiI_h22UvXYFRArDPd0W8SSfE0XCHlae8KH-XhVw1OopySnc",
+        },
+        // standaloneChains: ["eip155:1"],
+        mobileWallets: [
+          {
+            id: "owallet", // unique ID
+            name: "OWallet", // Display name
+            links: {
+              native: "owallet://", // deep link to app
+              universal: "https://owallet.io", // fallback
+            },
+          },
+        ],
       });
 
       setEthereumProvider(provider);
